@@ -16,6 +16,7 @@ add_executable(maniac
     src/process.c
     src/window.c
     src/humanization.c
+    src/search.c
 )
 
 if (UNIX)

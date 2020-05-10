@@ -1,5 +1,7 @@
 #include "beatmap.h"
 
+size_t find_beatmap_exp(char *base_path, char *window_title);
+
 /**
  * Parses a raw beatmap line into a beatmap_meta struct pointed to by *meta.
  * Returns the number of tokens read.

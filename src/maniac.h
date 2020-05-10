@@ -4,6 +4,7 @@
 #include "common.h"
 
 #include "game.h"
+#include "search.h"
 #include "window.h"
 #include "beatmap.h"
 #include "process.h"

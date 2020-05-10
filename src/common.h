@@ -56,6 +56,9 @@
 
 #define COLS_WIDTH 512
 
+// Sensible string length.
+#define STR_LEN 256
+
 #define MAX_PATH_LENGTH 260
 #define MAX_LINE_LENGTH 1024
 
