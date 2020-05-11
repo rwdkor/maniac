@@ -16,6 +16,12 @@ static int find_beatmap_folder(char *base_path, struct name_meta *title_meta,
 			       char **out_name);
 
 /**
+ * Replaces the characters <, >, :, ", /, \, |, ?, * with _ if remove is set to
+ * 0. Otherwise, removes them.
+ */
+static int sanitize_string(char *string, int remove);
+
+/**
  * Parses a generic beatmap meta string.
  *
  * By default, expects a string of the format `${author} - ${title}``.
@@ -118,6 +124,18 @@ static int parse_folder_name(char *name, struct name_meta *meta) {
 		return 0;
 	}
 
+	if (sanitize_string(meta->author, 0) < 0) {
+		debug("failed sanitizing '%s'", meta->author);
+	}
+
+	if (sanitize_string(meta->title, 0) < 0) {
+		debug("failed sanitizing '%s'", meta->title);
+	}
+
+	if (sanitize_string(meta->difficulty, 0) < 0) {
+		debug("failed sanitizing '%s'", meta->difficulty);
+	}
+
 	return 1;
 }
 
@@ -131,6 +149,8 @@ static int parse_window_title(char *title, struct name_meta *meta) {
 		debug("generic meta parsing failed");
 		return 0;
 	}
+
+	// Doesn't need any sanitizing.
 
 	return 1;
 }
@@ -173,4 +193,31 @@ static int parse_generic_string(char *string, struct name_meta *meta,
 	}
 
 	return 1;
+}
+
+static int sanitize_string(char *string, int remove) {
+	if (!string) {
+		debug("received null pointer");
+		return -1;
+	}
+
+	int i = 0;
+	do {
+		switch (*string) {
+			case '<':
+			case '>':
+			case ':':
+			case '"':
+			case '/':
+			case '\\':
+			case '|':
+			case '?':
+			case '*':
+				*string = remove == 0 ? '_' : ':';
+				i++;
+				break;
+		}
+	} while (string++);
+
+	return i;
 }
