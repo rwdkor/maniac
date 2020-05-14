@@ -191,7 +191,7 @@ static int standby(char **map, int search) {
 	}
 
 	if (search) {
-		find_beatmap_exp(songs_path, title);
+		// find_beatmap_exp(songs_path, title);
 		find_beatmap(songs_path, title + 8, map);
 	}
 
