@@ -74,6 +74,9 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
 
     add_compile_definitions(DEBUG SOURCE_PATH_SIZE=${SOURCE_PATH_SIZE})
+    add_compile_options(-g)
+else ()
+    add_compile_options(-s -O3 -fvisibility=hidden -fvisibility-inlines-hidden)
 endif()
 
 # TODO: Is C11 really required?

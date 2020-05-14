@@ -17,9 +17,10 @@ static int find_beatmap_folder(char *base_path, struct name_meta *title_meta,
 
 /**
  * Replaces the characters <, >, :, ", /, \, |, ?, * with _ if remove is set to
- * 0. Otherwise, removes them.
+ * 0. Otherwise, removes them. Doesn't touch the original string unless out_string
+ * is NULL.
  */
-static int sanitize_string(char *string, int remove);
+static int sanitize_string(char *string, char **out_string, int remove);
 
 /**
  * Parses a generic beatmap meta string.
@@ -88,7 +89,7 @@ static int find_beatmap_folder(char *base_path, struct name_meta *title_meta,
 	*out_name = malloc(MAX_PATH);
 
 	while ((ep = readdir(dp)) != NULL) {
-		// TODO: Why does `ep->d_type` not exist on my machine?
+		// TODO: Why does `ep->d_type` not exist?
 
 		// Ignore `.`, `..` and hidden directories
 		if (ep->d_name[0] == '.')
@@ -99,6 +100,7 @@ static int find_beatmap_folder(char *base_path, struct name_meta *title_meta,
 			debug("failed parsing folder name '%s'", ep->d_name);
 			continue;
 		}
+
 	}
 
 	closedir(dp);
@@ -124,18 +126,6 @@ static int parse_folder_name(char *name, struct name_meta *meta) {
 		return 0;
 	}
 
-	if (sanitize_string(meta->author, 0) < 0) {
-		debug("failed sanitizing '%s'", meta->author);
-	}
-
-	if (sanitize_string(meta->title, 0) < 0) {
-		debug("failed sanitizing '%s'", meta->title);
-	}
-
-	if (sanitize_string(meta->difficulty, 0) < 0) {
-		debug("failed sanitizing '%s'", meta->difficulty);
-	}
-
 	return 1;
 }
 
@@ -149,8 +139,6 @@ static int parse_window_title(char *title, struct name_meta *meta) {
 		debug("generic meta parsing failed");
 		return 0;
 	}
-
-	// Doesn't need any sanitizing.
 
 	return 1;
 }
@@ -195,10 +183,17 @@ static int parse_generic_string(char *string, struct name_meta *meta,
 	return 1;
 }
 
-static int sanitize_string(char *string, int remove) {
+static int sanitize_string(char *string, char **out_string, int remove) {
 	if (!string) {
 		debug("received null pointer");
 		return -1;
+	}
+
+	char *out = string;
+
+	if (out_string) {
+		*out_string = malloc(STR_LEN);
+		out = *out_string;
 	}
 
 	int i = 0;
@@ -213,11 +208,14 @@ static int sanitize_string(char *string, int remove) {
 			case '|':
 			case '?':
 			case '*':
-				*string = remove == 0 ? '_' : ':';
+				out[i] = remove == 0 ? '_' : ':';
 				i++;
 				break;
+			default:
+				out[i] = *string;
+				break;
 		}
-	} while (string++);
+	} while (*++string);
 
 	return i;
 }
